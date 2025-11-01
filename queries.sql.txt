@@ -1,0 +1,2 @@
+select MAX(customer_id ) from customers
+Выбор максимального значения из колонки customer_id в таблице customers.
