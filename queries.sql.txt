@@ -1,5 +1,66 @@
+--Выбор максимального значения из колонки customer_id в таблице customers.
 select
 MAX(customer_id ) 
 FROM customers
---Выбор максимального значения из колонки customer_id в таблице customers.
 
+отчет о десятке лучших продавцов. Таблица состоит из трех колонок - данных о продавце, суммарной выручке с проданных товаров и количестве проведенных сделок, и отсортирована по убыванию выручки
+
+SELECT 
+  CONCAT(e.first_name, ' ', e.last_name) AS seller,
+  COUNT(s.sales_id) AS operations,
+  SUM(s.quantity * p.price) AS income
+FROM 
+  sales s
+JOIN 
+  employees e ON s.sales_person_id = e.employee_id
+JOIN 
+  products p ON s.product_id = p.product_id
+GROUP BY 
+  e.employee_id, e.first_name, e.last_name
+ORDER BY 
+  income DESC
+LIMIT 10;
+
+
+ -- отчет содержит информацию о продавцах, чья средняя выручка за сделку меньше средней выручки за сделку по всем продавцам. Таблица отсортирована по выручке по возрастанию.
+SELECT
+  CONCAT(e.first_name, ' ', e.last_name) AS seller,
+  ROUND(AVG(p.price * s.quantity)) AS average_income
+FROM
+  sales s
+JOIN
+  employees e ON s.sales_person_id = e.employee_id
+JOIN
+  products p ON s.product_id = p.product_id
+GROUP BY
+  e.employee_id, e.first_name, e.last_name
+HAVING
+  AVG(p.price * s.quantity) < (
+    SELECT AVG(sub.total_income) FROM (
+      SELECT AVG(p2.price * s2.quantity) AS total_income
+      FROM sales s2
+      JOIN products p2 ON s2.product_id = p2.product_id
+      GROUP BY s2.sales_person_id
+    ) sub
+  )
+ORDER BY
+  average_income ASC;
+
+--отчет содержит информацию о выручке по дням недели. Каждая запись содержит имя и фамилию продавца, день недели и суммарную выручку. Отсортируйте данные по порядковому номеру дня недели и seller
+SELECT
+    CONCAT(e.first_name, ' ', e.last_name) AS seller,
+    TO_CHAR(s.sale_date, 'Day') AS day_of_week,
+    ROUND(SUM(p.price * s.quantity)) AS income
+FROM
+    sales s
+JOIN
+    employees e ON s.sales_person_id = e.employee_id
+JOIN
+    products p ON s.product_id = p.product_id
+GROUP BY
+    seller,
+    EXTRACT(DOW FROM s.sale_date),
+    TO_CHAR(s.sale_date, 'Day')
+ORDER BY
+    CASE WHEN EXTRACT(DOW FROM s.sale_date) = 0 THEN 7 ELSE EXTRACT(DOW FROM s.sale_date) END,
+    seller;
