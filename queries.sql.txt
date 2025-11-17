@@ -88,3 +88,18 @@ ORDER BY
     WHEN age_category = '26-40' THEN 2
     WHEN age_category = '40+' THEN 3
   END;
+
+/*данные по количеству уникальных покупателей и выручке, которую они принесли. Сгруппируйте данные по дате, которая представлена в числовом виде ГОД-МЕСЯЦ. Итоговая таблица должна быть отсортирована по дате по возрастанию*/
+
+SELECT
+    TO_CHAR(s.sale_date, 'YYYY-MM') AS selling_month,
+    COUNT(DISTINCT s.customer_id) AS total_customers,
+    SUM(s.quantity * p.price) AS income
+FROM
+    sales s
+JOIN
+    products p ON s.product_id = p.product_id
+GROUP BY
+    selling_month
+ORDER BY
+    selling_month ASC;
