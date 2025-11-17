@@ -103,3 +103,33 @@ GROUP BY
     selling_month
 ORDER BY
     selling_month ASC;
+
+--Покупатели, первая покупка которых была в ходе проведения акций (акционные товары отпускали со стоимостью равной 0). Итоговая таблица должна быть отсортирована по id покупателя.
+
+WITH FirstPurchases AS (
+    SELECT
+        s.customer_id,
+        MIN(s.sale_date) AS first_sale_date
+    FROM sales s
+    GROUP BY s.customer_id
+),
+FirstPromoPurchases AS (
+    SELECT
+        s.customer_id,
+        s.sale_date,
+        s.sales_person_id,
+        p.name AS product_name
+    FROM sales s
+    JOIN products p ON s.product_id = p.product_id
+    JOIN FirstPurchases fp ON s.customer_id = fp.customer_id AND s.sale_date = fp.first_sale_date
+    WHERE p.price = 0
+)
+SELECT
+    CONCAT(c.first_name, ' ', c.last_name) AS customer,
+    fpp.sale_date,
+    CONCAT(e.first_name, ' ', e.last_name) AS seller
+FROM FirstPromoPurchases fpp
+JOIN customers c ON fpp.customer_id = c.customer_id
+JOIN employees e ON fpp.sales_person_id = e.employee_id
+group by customer, seller, fpp.sale_date,fpp.customer_id
+ORDER BY fpp.customer_id;
