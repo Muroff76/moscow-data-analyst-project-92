@@ -10,9 +10,11 @@ select
     count(s.sales_id) as operations,
     sum(s.quantity * p.price) as income
 from
-    sales s
-    join employees e on s.sales_person_id = e.employee_id
-    join products p on s.product_id = p.product_id
+    sales as s
+    inner join employees as e
+        on s.sales_person_id = e.employee_id
+    inner join products as p
+        on s.product_id = p.product_id
 group by
     e.employee_id,
     e.first_name,
@@ -29,26 +31,32 @@ with seller_stats as (
         concat(e.first_name, ' ', e.last_name) as seller,
         floor(avg(s.quantity * p.price)) as average_income
     from
-        sales s
-        left join employees e on s.sales_person_id = e.employee_id
-        left join products p on s.product_id = p.product_id
+        sales as s
+        left join employees as e
+            on s.sales_person_id = e.employee_id
+        left join products as p
+            on s.product_id = p.product_id
     group by
         e.employee_id,
         e.first_name,
         e.last_name
 ),
+
 overall_avg as (
-    select floor(avg(s.quantity * p.price)) as avg_value
-    from sales s
-        left join products p on s.product_id = p.product_id
+    select
+        floor(avg(s.quantity * p.price)) as avg_value
+    from
+        sales as s
+        left join products as p
+            on s.product_id = p.product_id
 )
 
 select
     ss.seller,
     ss.average_income
 from
-    seller_stats ss
-    cross join overall_avg oa
+    seller_stats as ss
+    cross join overall_avg as oa
 where
     ss.average_income < oa.avg_value
 order by
@@ -60,9 +68,11 @@ select
     trim(to_char(s.sale_date, 'Day')) as day_of_week,
     floor(sum(s.quantity * p.price)) as income
 from
-    sales s
-    left join employees e on s.sales_person_id = e.employee_id
-    left join products p on s.product_id = p.product_id
+    sales as s
+    left join employees as e
+        on s.sales_person_id = e.employee_id
+    left join products as p
+        on s.product_id = p.product_id
 group by
     e.employee_id,
     e.first_name,
@@ -103,8 +113,9 @@ select
     count(distinct s.customer_id) as total_customers,
     floor(sum(s.quantity * p.price)) as income
 from
-    sales s
-    left join products p on s.product_id = p.product_id
+    sales as s
+    left join products as p
+        on s.product_id = p.product_id
 group by
     to_char(s.sale_date, 'YYYY-MM')
 order by
@@ -116,10 +127,11 @@ with first_purchases as (
         s.customer_id,
         min(s.sale_date) as first_sale_date
     from
-        sales s
+        sales as s
     group by
         s.customer_id
 ),
+
 first_promo_purchases as (
     select
         s.customer_id,
@@ -127,9 +139,11 @@ first_promo_purchases as (
         s.sales_person_id,
         p.name as product_name
     from
-        sales s
-        join products p on s.product_id = p.product_id
-        join first_purchases fp on s.customer_id = fp.customer_id
+        sales as s
+        inner join products as p
+            on s.product_id = p.product_id
+        inner join first_purchases as fp
+            on s.customer_id = fp.customer_id
             and s.sale_date = fp.first_sale_date
     where
         p.price = 0
@@ -140,9 +154,11 @@ select
     fpp.sale_date,
     concat(e.first_name, ' ', e.last_name) as seller
 from
-    first_promo_purchases fpp
-    join customers c on fpp.customer_id = c.customer_id
-    join employees e on fpp.sales_person_id = e.employee_id
+    first_promo_purchases as fpp
+    inner join customers as c
+        on fpp.customer_id = c.customer_id
+    inner join employees as e
+        on fpp.sales_person_id = e.employee_id
 group by
     fpp.customer_id,
     c.first_name,
