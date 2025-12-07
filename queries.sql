@@ -68,9 +68,9 @@ select
 from
     sales as s
 left join employees as e
-        on s.sales_person_id = e.employee_id
+    on s.sales_person_id = e.employee_id
 left join products as p
-        on s.product_id = p.product_id
+    on s.product_id = p.product_id
 group by
     e.employee_id,
     e.first_name,
@@ -82,7 +82,8 @@ order by
     seller;
 
 -- количество покупателей в разных возрастных группах
-select     age_category,
+select
+    age_category,
     count(*) as age_count
 from
     (
@@ -111,9 +112,9 @@ select
     floor(sum(s.quantity * p.price)) as income
 from
     sales as s
-    left join products as p
+left join products as p
     on s.product_id = p.product_id
-    group by
+group by
     to_char(s.sale_date, 'YYYY-MM')
 order by
     selling_month;
@@ -121,7 +122,7 @@ order by
 -- Покупатели, первая покупка которых была в ходе проведения акций
 with first_purchases as (
     select
-    s.customer_id,
+        s.customer_id,
         min(s.sale_date) as first_sale_date
     from
         sales as s
@@ -137,11 +138,11 @@ first_promo_purchases as (
         p.name as product_name
     from
         sales as s
-        inner join products as p
-            on s.product_id = p.product_id
-        inner join first_purchases as fp
-            on s.customer_id = fp.customer_id
-            and s.sale_date = fp.first_sale_date
+    inner join products as p
+        on s.product_id = p.product_id
+    inner join first_purchases as fp
+        on s.customer_id = fp.customer_id
+        and s.sale_date = fp.first_sale_date
     where
         p.price = 0
 )
@@ -151,10 +152,10 @@ select concat(c.first_name, ' ', c.last_name) as customer,
     concat(e.first_name, ' ', e.last_name) as seller
 from
     first_promo_purchases as fpp
-    inner join customers as c
-        on fpp.customer_id = c.customer_id
-    inner join employees as e
-        on fpp.sales_person_id = e.employee_id
+inner join customers as c
+    on fpp.customer_id = c.customer_id
+inner join employees as e
+    on fpp.sales_person_id = e.employee_id
 group by
     fpp.customer_id,
     c.first_name,
@@ -164,7 +165,7 @@ group by
     e.first_name,
     e.last_name
 order by
-
     fpp.customer_id;
+
 
 
