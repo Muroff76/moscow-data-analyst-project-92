@@ -1,7 +1,7 @@
 --Выбор количества из колонки customer_id в таблице customers.
 select
-COUNT(customer_id ) AS customers_count
-FROM customers
+  COUNT(customer_id) AS customers_count
+  FROM customers
 
 отчет о десятке лучших продавцов. Таблица состоит из трех колонок - данных о продавце, суммарной выручке с проданных товаров и количестве проведенных сделок, и отсортирована по убыванию выручки
 
@@ -127,5 +127,6 @@ JOIN customers c ON fpp.customer_id = c.customer_id
 JOIN employees e ON fpp.sales_person_id = e.employee_id
 group by customer, seller, fpp.sale_date,fpp.customer_id
 ORDER BY fpp.customer_id;
+
 
 
