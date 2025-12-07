@@ -1,8 +1,8 @@
 --Выбор количества из колонки customer_id в таблице customers.
-select COUNT(customer_id) AS customers_count
+select COUNT(customer_id) as customers_count
   FROM customers
 
-отчет о десятке лучших продавцов. Таблица состоит из трех колонок - данных о продавце, суммарной выручке с проданных товаров и количестве проведенных сделок, и отсортирована по убыванию выручки
+--отчет о десятке лучших продавцов. Таблица состоит из трех колонок - данных о продавце, суммарной выручке с проданных товаров и количестве проведенных сделок, и отсортирована по убыванию выручки
 
 SELECT 
   CONCAT(e.first_name, ' ', e.last_name) AS seller,
@@ -62,7 +62,7 @@ ORDER BY
     EXTRACT(ISODOW FROM s.sale_date),
     seller;
 
-/* количество покупателей в разных возрастных группах: 16-25, 26-40 и 40+. Итоговая таблица должна быть отсортирована по возрастным группам и содержать следующие поля: age_category - возрастная группа age_count - количество человек в группе*/
+/* количество покупателей в разных возрастных группах: 16-25, 26-40 и 40+. Итоговая таблица должна быть отсортирована по возрастным группам и содержать следующие поля: age_category - возрастная группа age_count - количество человек в группе */
 
 SELECT
   age_category,
@@ -126,6 +126,7 @@ JOIN customers c ON fpp.customer_id = c.customer_id
 JOIN employees e ON fpp.sales_person_id = e.employee_id
 group by customer, seller, fpp.sale_date,fpp.customer_id
 ORDER BY fpp.customer_id;
+
 
 
 
