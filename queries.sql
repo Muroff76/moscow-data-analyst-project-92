@@ -46,7 +46,7 @@ overall_avg as (
     from
         sales as s
     left join products as p
-            on s.product_id = p.product_id
+        on s.product_id = p.product_id
 )
 
 select
@@ -54,7 +54,7 @@ select
     ss.average_income
 from
     seller_stats as ss
-    cross join overall_avg as oa
+cross join overall_avg as oa
 where
     ss.average_income < oa.avg_value
 order by
@@ -67,9 +67,9 @@ select
     floor(sum(s.quantity * p.price)) as income
 from
     sales as s
-    left join employees as e
+left join employees as e
         on s.sales_person_id = e.employee_id
-    left join products as p
+left join products as p
         on s.product_id = p.product_id
 group by
     e.employee_id,
@@ -82,8 +82,7 @@ order by
     seller;
 
 -- количество покупателей в разных возрастных группах
-select
-    age_category,
+select     age_category,
     count(*) as age_count
 from
     (
@@ -113,15 +112,16 @@ select
 from
     sales as s
     left join products as p
-        on s.product_id = p.product_id
-group by
+    on s.product_id = p.product_id
+    group by
     to_char(s.sale_date, 'YYYY-MM')
 order by
     selling_month;
 
 -- Покупатели, первая покупка которых была в ходе проведения акций
 with first_purchases as (
-    select s.customer_id,
+    select
+    s.customer_id,
         min(s.sale_date) as first_sale_date
     from
         sales as s
@@ -166,4 +166,5 @@ group by
 order by
 
     fpp.customer_id;
+
 
