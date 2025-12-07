@@ -16,7 +16,7 @@ JOIN
 JOIN 
   products p ON s.product_id = p.product_id
 GROUP BY 
-seller # e.employee_id, e.first_name, e.last_name
+  seller # e.employee_id, e.first_name, e.last_name
 ORDER BY 
   income DESC
 LIMIT 10;
@@ -127,4 +127,5 @@ JOIN customers c ON fpp.customer_id = c.customer_id
 JOIN employees e ON fpp.sales_person_id = e.employee_id
 group by customer, seller, fpp.sale_date,fpp.customer_id
 ORDER BY fpp.customer_id;
+
 
