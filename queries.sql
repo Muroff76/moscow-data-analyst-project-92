@@ -1,6 +1,5 @@
 -- Выбор количества из колонки customer_id в таблице customers.
-select
-    count(customer_id) as customers_count
+select count(customer_id) as customers_count
 from
     customers;
 
@@ -168,4 +167,5 @@ group by
     e.first_name,
     e.last_name
 order by
+
     fpp.customer_id;
