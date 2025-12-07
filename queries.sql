@@ -141,13 +141,14 @@ first_promo_purchases as (
     inner join products as p
         on s.product_id = p.product_id
     inner join first_purchases as fp
-        on s.customer_id = fp.customer_id
-        and s.sale_date = fp.first_sale_date
+            on s.customer_id = fp.customer_id
+            and s.sale_date = fp.first_sale_date
     where
         p.price = 0
 )
 
-select concat(c.first_name, ' ', c.last_name) as customer,
+select 
+    concat(c.first_name, ' ', c.last_name) as customer,
     fpp.sale_date,
     concat(e.first_name, ' ', e.last_name) as seller
 from
@@ -166,6 +167,3 @@ group by
     e.last_name
 order by
     fpp.customer_id;
-
-
-
