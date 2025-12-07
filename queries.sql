@@ -10,10 +10,10 @@ select
     sum(s.quantity * p.price) as income
 from
     sales as s
-    inner join employees as e
-        on s.sales_person_id = e.employee_id
-    inner join products as p
-        on s.product_id = p.product_id
+inner join employees as e
+    on s.sales_person_id = e.employee_id
+inner join products as p
+    on s.product_id = p.product_id
 group by
     e.employee_id,
     e.first_name,
@@ -31,10 +31,10 @@ with seller_stats as (
         floor(avg(s.quantity * p.price)) as average_income
     from
         sales as s
-        left join employees as e
-            on s.sales_person_id = e.employee_id
-        left join products as p
-            on s.product_id = p.product_id
+    left join employees as e
+        on s.sales_person_id = e.employee_id
+    left join products as p
+        on s.product_id = p.product_id
     group by
         e.employee_id,
         e.first_name,
@@ -42,11 +42,10 @@ with seller_stats as (
 ),
 
 overall_avg as (
-    select
-        floor(avg(s.quantity * p.price)) as avg_value
+    select floor(avg(s.quantity * p.price)) as avg_value
     from
         sales as s
-        left join products as p
+    left join products as p
             on s.product_id = p.product_id
 )
 
@@ -122,8 +121,7 @@ order by
 
 -- Покупатели, первая покупка которых была в ходе проведения акций
 with first_purchases as (
-    select
-        s.customer_id,
+    select s.customer_id,
         min(s.sale_date) as first_sale_date
     from
         sales as s
@@ -148,8 +146,7 @@ first_promo_purchases as (
         p.price = 0
 )
 
-select
-    concat(c.first_name, ' ', c.last_name) as customer,
+select concat(c.first_name, ' ', c.last_name) as customer,
     fpp.sale_date,
     concat(e.first_name, ' ', e.last_name) as seller
 from
@@ -169,3 +166,4 @@ group by
 order by
 
     fpp.customer_id;
+
