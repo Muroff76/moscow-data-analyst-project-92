@@ -1,68 +1,68 @@
 --Выбор количества из колонки customer_id в таблице customers.
-select COUNT(customer_id) as customers_count
-FROM customers
+select count(customer_id) as customers_count
+from customers
 
 --отчет о десятке лучших продавцов. Таблица состоит из трех колонок - данных о продавце, 
   --суммарной выручке с проданных товаров и количестве проведенных сделок, и отсортирована по убыванию выручки
 
-SELECT 
-  CONCAT(e.first_name, ' ', e.last_name) as seller,
-  COUNT(s.sales_id) as operations,
+select 
+  concat(e.first_name, ' ', e.last_name) as seller,
+  count(s.sales_id) as operations,
   SUM(s.quantity * p.price) as income
-FROM 
+from 
   sales s
-JOIN 
+join 
   employees e ON s.sales_person_id = e.employee_id
-JOIN 
+join 
   products p ON s.product_id = p.product_id
-GROUP BY 
+group by 
   seller # e.employee_id, e.first_name, e.last_name
-ORDER BY 
-  income DESC
-LIMIT 10;
+order by 
+  income desc
+limit 10;
 
 
  -- отчет содержит информацию о продавцах, чья средняя выручка за сделку
 --меньше средней выручки за сделку по всем продавцам. Таблица отсортирована по выручке по возрастанию.
 WITH seller_stats AS (
-    SELECT
+    select
         CONCAT(e.first_name, ' ', e.last_name) AS seller,
         FLOOR(AVG(s.quantity * p.price)) AS average_income
-    FROM sales AS s
-    LEFT JOIN employees AS e ON s.sales_person_id = e.employee_id
-    LEFT JOIN products AS p ON s.product_id = p.product_id
-    GROUP BY seller
+    from sales AS s
+    LEFT join employees AS e ON s.sales_person_id = e.employee_id
+    LEFT join products AS p ON s.product_id = p.product_id
+    group by seller
 ),
 
 overall_avg AS (
-    SELECT FLOOR(AVG(s.quantity * p.price)) AS avg_value
-    FROM sales AS s
-    LEFT JOIN products AS p ON s.product_id = p.product_id
+    select FLOOR(AVG(s.quantity * p.price)) AS avg_value
+    from sales AS s
+    LEFT join products AS p ON s.product_id = p.product_id
 )
 
-SELECT
+select
     ss.seller,
     ss.average_income
-FROM seller_stats AS ss
-CROSS JOIN overall_avg AS oa
+from seller_stats AS ss
+CROSS join overall_avg AS oa
 WHERE ss.average_income < oa.avg_value
-ORDER BY ss.average_income DESC;
+order by ss.average_income DESC;
 
 --отчет содержит информацию о выручке по дням недели. Каждая запись содержит
 --имя и фамилию продавца, день недели и суммарную выручку. 
 --Отсортируйте данные по порядковому номеру дня недели и seller
-SELECT
+select
     CONCAT(e.first_name, ' ', e.last_name) AS seller,
     TRIM(TO_CHAR(s.sale_date, 'Day')) AS day_of_week,
     FLOOR(SUM(s.quantity * p.price)) AS income
-FROM sales AS s
-LEFT JOIN employees AS e ON s.sales_person_id = e.employee_id
-LEFT JOIN products AS p ON s.product_id = p.product_id
-GROUP BY
+from sales AS s
+LEFT join employees AS e ON s.sales_person_id = e.employee_id
+LEFT join products AS p ON s.product_id = p.product_id
+group by
     seller,
     TRIM(TO_CHAR(s.sale_date, 'Day')),
     EXTRACT(ISODOW FROM s.sale_date)
-ORDER BY
+order by
     EXTRACT(ISODOW FROM s.sale_date),
     seller;
 
@@ -72,22 +72,22 @@ ORDER BY
  -- содержать следующие поля: age_category - 
 --возрастная группа age_count - количество человек в группе */
 
-SELECT
+select
   age_category,
   COUNT(*) AS age_count
-FROM (
-  SELECT
+from (
+  select
     CASE
       WHEN age BETWEEN 16 AND 25 THEN '16-25'
       WHEN age BETWEEN 26 AND 40 THEN '26-40'
       ELSE '40+'
     END AS age_category
-  FROM
+  from
     customers
 ) AS categorized_customers
-GROUP BY
+group by
   age_category
-ORDER BY
+order by
   CASE
     WHEN age_category = '16-25' THEN 1
     WHEN age_category = '26-40' THEN 2
@@ -98,43 +98,45 @@ ORDER BY
 --Сгруппируйте данные по дате, которая представлена в числовом виде ГОД-МЕСЯЦ. 
 --Итоговая таблица должна быть отсортирована по дате по возрастанию*/
 
-SELECT
+select
     TO_CHAR(s.sale_date, 'YYYY-MM') AS selling_month,
     COUNT(DISTINCT s.customer_id) AS total_customers,
     FLOOR(SUM(s.quantity * p.price)) AS income
-FROM sales AS s
-LEFT JOIN products AS p ON s.product_id = p.product_id
-GROUP BY TO_CHAR(s.sale_date, 'YYYY-MM')
-ORDER BY selling_month;
+from sales AS s
+LEFT join products AS p ON s.product_id = p.product_id
+group by TO_CHAR(s.sale_date, 'YYYY-MM')
+order by selling_month;
 
 --Покупатели, первая покупка которых была в ходе проведения акций (акционные товары отпускали со стоимостью равной 0). 
 --Итоговая таблица должна быть отсортирована по id покупателя.
 
 WITH FirstPurchases AS (
-    SELECT
+    select
         s.customer_id,
         MIN(s.sale_date) AS first_sale_date
-    FROM sales s
-    GROUP BY s.customer_id
+    from sales s
+    group by s.customer_id
 ),
 FirstPromoPurchases AS (
-    SELECT
+    select
         s.customer_id,
         s.sale_date,
         s.sales_person_id,
         p.name AS product_name
-    FROM sales s
-    JOIN products p ON s.product_id = p.product_id
-    JOIN FirstPurchases fp ON s.customer_id = fp.customer_id AND s.sale_date = fp.first_sale_date
-    WHERE p.price = 0
+    from sales s
+    join products p ON s.product_id = p.product_id
+    join FirstPurchases fp ON s.customer_id = fp.customer_id AND s.sale_date = fp.first_sale_date
+    wher p.price = 0
 )
-SELECT
-    CONCAT(c.first_name, ' ', c.last_name) AS customer,
+select
+    concat(c.first_name, ' ', c.last_name) AS customer,
     fpp.sale_date,
-    CONCAT(e.first_name, ' ', e.last_name) AS seller
-FROM FirstPromoPurchases fpp
-JOIN customers c ON fpp.customer_id = c.customer_id
-JOIN employees e ON fpp.sales_person_id = e.employee_id
-group by customer, seller, fpp.sale_date,fpp.customer_id
-ORDER BY fpp.customer_id;
+    concat(e.first_name, ' ', e.last_name) AS seller
+from FirstPromoPurchases fpp
+join customers c on fpp.customer_id = c.customer_id
+join employees e on fpp.sales_person_id = e.employee_id
+--group by customer, seller, fpp.sale_date,fpp.customer_id
+group by fpp.customer_id, fpp.sale_date, fpp.sales_person_id
+order by fpp.customer_id;
+
 
